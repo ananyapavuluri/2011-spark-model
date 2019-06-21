@@ -1,4 +1,5 @@
 % Plotting data from the 2011 Sticky Cluster Model
+% PROVIDED BY DR. ERIC SOBIE, DEPARTMENT OF PHARMOCOLOGY, ICAHN SCHOOL OF MEDICINE AT MOUNT SINAI
 
 % Read in csv files from C++
 Nopen_all = csvread('N_open.csv');
