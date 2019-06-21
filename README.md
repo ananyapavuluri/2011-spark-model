@@ -7,7 +7,7 @@ Calcium sparks can also be spontaneous (occuring without any electrical stimulus
 Upon discoveries about the geometry and behavior of ryanodine receptors, Sobie et al. created the sticky cluster model (see publication [here](https://www.ncbi.nlm.nih.gov/pubmed/12080100)).
 In 2011, parameters in the sticky cluster model were adjusted to reflect new experimental data by [Ramay et al.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3156908/).
 
-The 2011 sticky cluster model was written in MATLAB. This project aims to improve the speed and efficiency of the spark simulation using CUDA. Plotting of data is still done in MATLAB using CSV files from C++ (.csv files in this repo are C++ output, .eps files are MATLAB plots, sticky_plot.m is MATLAB code used to plot).
+The 2011 sticky cluster model was written in MATLAB. This project aims to improve the speed and efficiency of the spark simulation using CUDA. Plotting of data is still done in MATLAB using CSV files from C++ (.csv files in this repo are C++ output, .eps files are MATLAB plots, sticky_plot.m is MATLAB code used to plot). Provided plots and data from the C++ program reflect a simulation with 3 trials and 3,000,000 iterations. 
 
 This project was done in the Cardiac Systems Pharmacology Lab of Dr. Eric Sobie, Department of Pharmacological Sciences at the Icahn School of Medicine, Mount Sinai.
 
