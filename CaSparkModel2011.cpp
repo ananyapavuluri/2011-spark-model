@@ -341,7 +341,9 @@ for (int i = 0; i < trials; i++) {
 	plot_time.open("plottime.csv");
 	while (plot_time.is_open()) {
 		for(int i = 0; i < outputs; i++) {
-			plot_time << plottime[i] << ",";
+			plot_time << plottime[i];
+			if (i != outputs-1) 
+				plot_time << ",";
 		}
 		break;
 	}
