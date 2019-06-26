@@ -1,4 +1,4 @@
-/* Monte-Carlo model of Ca spark from single cluster of RyRs
+  /* Monte-Carlo model of Ca spark from single cluster of RyRs
    MATLAB model written by Eric Sobie, Icahn School of Medicine, Mount Sinai
    Parameters specified in:
    Ramay et. al, Cardiovascular Research, 2011
@@ -17,7 +17,6 @@ using namespace std;
 
 // FUNCTION DECLARATIONS
 double gen_random();
-bool is_a_timepoint(double time, double timearray[], int length);
 double onedec(double x);
 
 // ROUNDS A DOUBLE TO ONE DECIMAL PLACE
@@ -25,19 +24,6 @@ double onedec(double x)
 {
       return round(x * 10) / 10;
 }    
-
-// CHECKS IF DATA AT A CERTAIN TIME SHOULD BE PLOTTED
-// BY COMPARING TO PRE-SET ARRAY OF SIGNIFICANT TIMEPOINTS
-bool is_a_timepoint(double time, double timearray[], int length) 
-{
-	for (int i = 0; i < length; i++) {
-		
-		if(onedec(timearray[i]) == time) {
-			return true;
-		} 
-	}
-	return false; 
-}
 
 // GENERATES A RANDOM DOUBLE BETWEEN 0 AND 1 FOR STOCHASTIC MODELING
 double gen_random() 
@@ -178,7 +164,6 @@ for (int i = 0; i < outputs; i++) {
 double b[3];
 
 double J_ryr = 0;
-int count = 0;
 				// ---------------------        SIMULATION       --------------------- // 
 for (int i = 0; i < trials; i++) {
 	
@@ -195,22 +180,26 @@ for (int i = 0; i < trials; i++) {
 	double tlast = -1 * dt;
 	int J_d = 0;
 	bool neverspark = true;
-	double time = 0.0;
 	
 	for (int j = 0; j < iterations; j++) {
+		
+		double time = dt * j;
+
 		if (time >= interval && tlast < interval) {
 			nopen = nopen + 5;
 		}
-		else if (time >= interval + 10 && nopen < 1 && neverspark)  {
+		/*if (time >= interval + 10 && nopen < 1 && neverspark)  {
 			break;
-		}
+		}*/
 		double nclosed = N_RyR - nopen;
-		
+	
 		// Fluxes and currents	
 		J_ryr = nopen * D_ryr * (Ca_JSR - Ca_ss) / V_ss; // uM/ms
 		double I_ryr = 1e6 * J_ryr * 2 * F * V_ss ; 	 // pA
 		double J_efflux = (Ca_myo - Ca_ss) / tau_efflux ;
 		double J_refill = (Ca_NSR - Ca_JSR) / tau_refill;
+		
+
 
 		// Buffers
 		double db_dt[3];
@@ -226,7 +215,11 @@ for (int i = 0; i < trials; i++) {
 		// Writing arrays after the fluxes are calculated, before integration
 		// and state switching
 
-		if (is_a_timepoint(time, plottime, plottime_size)) {
+		if (time >= 10) {
+			nopen = 0;
+		}
+
+		if (j % (iterations/(outputs-1)) == 0) {
 				dt = 0.0000100; // the value of dt changes to 9.99999974737875e-06 
 						   		// within this conditional for an unknown reason.
 						   		// here, it is assigned 1e-5 again to prevent this.
@@ -235,7 +228,6 @@ for (int i = 0; i < trials; i++) {
 				Ca_ss_all[writedex][i] = Ca_ss;
 				Ca_JSR_all[writedex][i] = Ca_JSR;
 				writedex = writedex + 1;
-
 		}
 		
 		double Km_r = Km_r_max - alpha_r * Ca_JSR;
@@ -256,10 +248,18 @@ for (int i = 0; i < trials; i++) {
 		if(nopen >= 5) {
 			neverspark = false;
 		}
+		
+		// If RyR closing is not simulated (nopen does not go to 0 towards the end of each simulation), 
+		// this conditional will ensure that all RyRs are closed after 10 ms:
+		/* if ( time >= 10 ms ) {
+			nopen = 0;
+		} */
 
+		
 		// Subspace [Ca2+] and JSR [Ca2+] derivatives
 		double dCass_dt = J_efflux + J_d + J_ryr + J_buff;
-		double dCaJSR_dt = B_JSR * ( J_refill - J_ryr * V_ss/V_JSR);
+		double dCaJSR_dt = B_JSR * (J_refill - J_ryr * V_ss/V_JSR);
+
 
 		Ca_ss = Ca_ss + dt * dCass_dt;
 		Ca_JSR = Ca_JSR + dt * dCaJSR_dt;
@@ -270,10 +270,6 @@ for (int i = 0; i < trials; i++) {
 		}
 
 		tlast = time;
-		time += dt;
-		// accounting for precision problems with floating point numbers.
-		// ensures that time is accurate to 5 decimal places.
-		time = round(time * 100000) / 100000;
 	}
 
 	// Write values at last time point t_end after the loop terminates
@@ -283,6 +279,8 @@ for (int i = 0; i < trials; i++) {
 	Nopen_all[outputs-1][i]   = nopen;
 
 }
+
+	cout << "End of simulation." << endl;
 	
 	// WRITING OUTPUT TO CSV FILES
 
@@ -342,7 +340,7 @@ for (int i = 0; i < trials; i++) {
 	while (plot_time.is_open()) {
 		for(int i = 0; i < outputs; i++) {
 			plot_time << plottime[i];
-			if (i != outputs-1) 
+			if (i != (outputs - 1)) 
 				plot_time << ",";
 		}
 		break;
@@ -362,8 +360,6 @@ for (int i = 0; i < trials; i++) {
 	delete [] Irel_all;
 	
 	cout << "End of program." << endl;
-
 	return 0;
 }
-
 
